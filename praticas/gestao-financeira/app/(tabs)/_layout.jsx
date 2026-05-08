@@ -12,6 +12,7 @@ export default function TabsLayout() {
         headerTitleAlign: "center",
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.inactive,
+        tabBarHideOnKeyboard: true,
         tabBarStyle: { height: 60, paddingTop: 5, backgroundColor: colors.background },
         tabBarButton: (props) => <TouchableOpacity {...props} activeOpacity={0.8}/>
       }}
