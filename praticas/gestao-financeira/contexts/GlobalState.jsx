@@ -38,6 +38,11 @@ export default function GlobalState({ children }) {
     setTransactions((prev) => prev.filter((t) => t.id !== id))
   }, [])
 
+  const updateTransaction = useCallback(async (id, data) => {
+    const updated = await api.updateTransaction(id, data)
+    setTransactions((prev) => prev.map((t) => (t.id === id ? updated : t)))
+  }, [])
+
   const addCategory = useCallback(async (data) => {
     const newCategory = await api.createCategory(data)
     setCategories((prev) => [...prev, newCategory])
@@ -57,6 +62,7 @@ export default function GlobalState({ children }) {
       refresh,
       addTransaction,
       removeTransaction,
+      updateTransaction,
       addCategory,
       removeCategory,
     }}>
