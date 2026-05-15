@@ -1,33 +1,33 @@
-import { StyleSheet, Text, View } from "react-native"
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { globalStyles } from "../styles/globalstyles"
 import CategoryItem from "./CategoryItem"
-import { categories } from "../constants/categories"
 
-export default function TransactionItem({ category, date, description, value }) {
-  const valueStyle =
-    category === categories.income.name
-      ? globalStyles.positiveText
-      : globalStyles.negativeText
+export default function TransactionItem({ category, date, description, value, onLongPress }) {
+  const valueStyle = category?.isIncome
+    ? globalStyles.positiveText
+    : globalStyles.negativeText
 
   return (
     <>
-      <View style={styles.itemContainer}>
-        <CategoryItem category={category} />
-        <View style={styles.textContainer}>
-          <Text style={globalStyles.secondaryText}>
-            {new Date(date).toLocaleDateString("pt-BR")}
-          </Text>
-          <View style={styles.bottomLineContainer}>
-            <Text style={globalStyles.primaryText}>{description}</Text>
-            <Text style={valueStyle}>
-              {value.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}
+      <TouchableOpacity onLongPress={onLongPress}>
+        <View style={styles.itemContainer}>
+          <CategoryItem category={category} />
+          <View style={styles.textContainer}>
+            <Text style={globalStyles.secondaryText}>
+              {new Date(date).toLocaleDateString("pt-BR")}
             </Text>
+            <View style={styles.bottomLineContainer}>
+              <Text style={globalStyles.primaryText}>{description}</Text>
+              <Text style={valueStyle}>
+                {Number(value).toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
       <View style={globalStyles.line} />
     </>
   )

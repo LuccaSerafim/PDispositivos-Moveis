@@ -1,77 +1,47 @@
 import { useContext, useMemo } from "react";
 import { MoneyContext } from "../../contexts/GlobalState";
-import { categories } from "../../constants/categories";
 import { globalStyles } from "../../styles/globalstyles";
 import SummaryItem from "../../components/SummaryItem";
 import { StyleSheet, Text, View } from "react-native";
 import { colors } from "../../constants/colors";
 
-const SUMMARY_CATEGORY_KEYS = [
-  categories.income.name,
-  categories.food.name,
-  categories.house.name,
-  categories.education.name,
-  categories.travel.name,
-];
-
 export default function Summary() {
-  const [transactions] = useContext(MoneyContext);
+  const { transactions, categories } = useContext(MoneyContext);
 
-  const getTotals = () => {
-    const totals = {
-      sum: 0,
-      income: 0,
-      food: 0,
-      education: 0,
-      house: 0,
-      travel: 0,
-    };
+  const totals = useMemo(() => {
+    const map = {};
+    let sum = 0;
 
-    for (let i = 0; i < transactions.length; i++) {
-      const item = transactions[i];
-      if (!SUMMARY_CATEGORY_KEYS.includes(item.category)) {
-        continue;
-      }
+    for (const cat of categories) {
+      map[cat.id] = 0;
+    }
 
-      totals[item.category] += item.value;
+    for (const item of transactions) {
+      if (map[item.categoryId] === undefined) continue;
+      map[item.categoryId] += Number(item.value);
 
-      if (item.category === categories.income.name) {
-        totals.sum += item.value;
+      if (item.category?.isIncome) {
+        sum += Number(item.value);
       } else {
-        totals.sum -= item.value;
+        sum -= Number(item.value);
       }
     }
-    return totals;
-  };
 
-  const totals = useMemo(getTotals, [transactions]);
+    return { map, sum };
+  }, [transactions, categories]);
 
-  const valueStyle =
-    totals.sum > 0 ? globalStyles.positiveText : globalStyles.negativeText;
+  const valueStyle = totals.sum > 0 ? globalStyles.positiveText : globalStyles.negativeText;
 
   return (
     <View style={globalStyles.screenContainer}>
       <View style={globalStyles.content}>
-        <SummaryItem
-          category={categories.income.name}
-          value={totals[categories.income.name]}
-        />
-        <SummaryItem
-          category={categories.food.name}
-          value={totals[categories.food.name]}
-        />
-        <SummaryItem
-          category={categories.house.name}
-          value={totals[categories.house.name]}
-        />
-        <SummaryItem
-          category={categories.education.name}
-          value={totals[categories.education.name]}
-        />
-        <SummaryItem
-          category={categories.travel.name}
-          value={totals[categories.travel.name]}
-        />
+        {categories.map((cat) => (
+          <SummaryItem
+            key={cat.id}
+            category={cat}
+            value={totals.map[cat.id] ?? 0}
+          />
+        ))}
 
         <View style={globalStyles.line} />
 

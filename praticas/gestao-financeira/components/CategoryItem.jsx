@@ -1,15 +1,12 @@
 import { MaterialIcons } from "@expo/vector-icons"
 import { StyleSheet, View } from "react-native"
-import { categories } from "../constants/categories"
 import { colors } from "../constants/colors"
 
 export default function CategoryItem({ category }) {
-  const categoryConfig = categories[category] ?? categories.food
-
   return (
-    <View style={[styles.background, { backgroundColor: categoryConfig.background }]}>
+    <View style={[styles.background, { backgroundColor: category?.background ?? "#ccc" }]}>
       <MaterialIcons
-        name={categoryConfig.icon}
+        name={category?.icon ?? "help"}
         size={24}
         color={colors.primaryContrast}
       />

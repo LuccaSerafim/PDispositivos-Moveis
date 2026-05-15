@@ -7,37 +7,49 @@ import CurrencyInput from "../../components/CurrencyInput";
 import DatePicker from "../../components/DatePicker";
 import CategoryPicker from "../../components/CategoryPicker";
 import { MoneyContext } from "../../contexts/GlobalState";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const initialForm = {
   description: "",
   value: 0,
   date: new Date(),
-  category: "Renda",
+  categoryId: "",
 };
 
 export default function AddTransactions() {
   const [form, setForm] = useState(initialForm);
+  const [saving, setSaving] = useState(false);
   const valueInputRef = useRef();
-  const [transactions, setTransactions] = useContext(MoneyContext);
+  const { addTransaction, categories } = useContext(MoneyContext);
 
-  const setAsyncStorage = async (data) => {
-    try {
-      await AsyncStorage.setItem("transactions", JSON.stringify(data));
-    } catch (e) {
-      console.log(e);
+  const handleAdd = async () => {
+    if (!form.description) {
+      Alert.alert("Erro", "Preencha a descrição!");
+      return;
     }
-  };
+    if (!form.categoryId) {
+      Alert.alert("Erro", "Selecione uma categoria!");
+      return;
+    }
+    if (!form.value || form.value <= 0) {
+      Alert.alert("Erro", "Informe um valor válido!");
+      return;
+    }
 
-  const addTransaction = async () => {
-    const newTransaction = { id: transactions.length + 1, ...form };
-    const updatedTransactions = [...transactions, newTransaction];
-
-    setTransactions(updatedTransactions);
-    setForm(initialForm);
-    await setAsyncStorage(updatedTransactions);
-
-    Alert.alert("Sucesso!", "Transação adicionada com sucesso!");
+    setSaving(true);
+    try {
+      await addTransaction({
+        description: form.description,
+        value: form.value,
+        date: form.date,
+        categoryId: form.categoryId,
+      });
+      setForm({ ...initialForm, categoryId: categories[0]?.id ?? "" });
+      Alert.alert("Sucesso!", "Transação adicionada com sucesso!");
+    } catch (e) {
+      Alert.alert("Erro", e.message ?? "Não foi possível salvar a transação.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -50,7 +62,9 @@ export default function AddTransactions() {
             <DatePicker form={form} setForm={setForm} />
             <CategoryPicker form={form} setForm={setForm} />
           </View>
-          <Button onPress={addTransaction}>Adicionar</Button>
+          <Button onPress={handleAdd} disabled={saving}>
+            {saving ? "Salvando..." : "Adicionar"}
+          </Button>
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

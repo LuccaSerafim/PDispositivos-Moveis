@@ -2,22 +2,23 @@ import { Picker } from "@react-native-picker/picker"
 import { StyleSheet, Text, View } from "react-native"
 import { globalStyles } from "../styles/globalstyles"
 import { colors } from "../constants/colors"
-import { categories } from "../constants/categories"
+import { useContext } from "react"
+import { MoneyContext } from "../contexts/GlobalState"
 
 export default function CategoryPicker({ form, setForm }) {
+  const { categories } = useContext(MoneyContext)
+
   return (
     <View>
       <Text style={globalStyles.inputLabel}>Categoria</Text>
       <View style={styles.picker}>
         <Picker
-          selectedValue={form.category}
-          onValueChange={(itemValue) => setForm({ ...form, category: itemValue })}
+          selectedValue={form.categoryId}
+          onValueChange={(itemValue) => setForm({ ...form, categoryId: itemValue })}
         >
-          <Picker.Item label={categories.income.displayName} value={categories.income.name} />
-          <Picker.Item label={categories.food.displayName} value={categories.food.name} />
-          <Picker.Item label={categories.house.displayName} value={categories.house.name} />
-          <Picker.Item label={categories.education.displayName} value={categories.education.name} />
-          <Picker.Item label={categories.travel.displayName} value={categories.travel.name} />
+          {categories.map((cat) => (
+            <Picker.Item key={cat.id} label={cat.displayName} value={cat.id} />
+          ))}
         </Picker>
       </View>
     </View>
