@@ -1,5 +1,5 @@
 import { MoneyContext } from "../../contexts/GlobalState";
-import { useContext, useState } from "react";
+import { useContext, useState, useMemo } from "react";
 import {
   ActivityIndicator, Alert, FlatList, RefreshControl,
   Text, View, Modal, TextInput, TouchableOpacity, StyleSheet
@@ -8,12 +8,35 @@ import TransactionItem from "../../components/TransactionItem";
 import { globalStyles } from "../../styles/globalstyles";
 import { colors } from "../../constants/colors";
 import { Picker } from "@react-native-picker/picker";
+import { MaterialIcons } from "@expo/vector-icons";
+
+const MONTHS = [
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+];
 
 export default function Transactions() {
   const { transactions, categories, loading, error, refresh, removeTransaction, updateTransaction } = useContext(MoneyContext);
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving] = useState(false);
+
+  const now = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+
+  const years = useMemo(() => {
+    const set = new Set(transactions.map((t) => new Date(t.date).getFullYear()));
+    set.add(now.getFullYear());
+    return Array.from(set).sort((a, b) => b - a);
+  }, [transactions]);
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((t) => {
+      const date = new Date(t.date);
+      return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
+    });
+  }, [transactions, selectedMonth, selectedYear]);
 
   const handleLongPress = (item) => {
     Alert.alert(
@@ -74,6 +97,24 @@ export default function Transactions() {
     }
   };
 
+  const prevMonth = () => {
+    if (selectedMonth === 0) {
+      setSelectedMonth(11);
+      setSelectedYear((y) => y - 1);
+    } else {
+      setSelectedMonth((m) => m - 1);
+    }
+  };
+
+  const nextMonth = () => {
+    if (selectedMonth === 11) {
+      setSelectedMonth(0);
+      setSelectedYear((y) => y + 1);
+    } else {
+      setSelectedMonth((m) => m + 1);
+    }
+  };
+
   if (loading) {
     return (
       <View style={globalStyles.screenContainer}>
@@ -95,15 +136,28 @@ export default function Transactions() {
 
   return (
     <View style={globalStyles.screenContainer}>
+      {/* Filtro de mês/ano */}
+      <View style={styles.filterContainer}>
+        <TouchableOpacity onPress={prevMonth}>
+          <MaterialIcons name="chevron-left" size={32} color={colors.primary} />
+        </TouchableOpacity>
+        <Text style={styles.filterText}>
+          {MONTHS[selectedMonth]} {selectedYear}
+        </Text>
+        <TouchableOpacity onPress={nextMonth}>
+          <MaterialIcons name="chevron-right" size={32} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
+
       <FlatList
-        data={transactions}
+        data={filteredTransactions}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
           <TransactionItem {...item} onLongPress={() => handleLongPress(item)} />
         )}
         ListEmptyComponent={
           <Text style={globalStyles.secondaryText}>
-            Ainda não há nenhum item!
+            Nenhuma transação em {MONTHS[selectedMonth]} {selectedYear}
           </Text>
         }
         refreshControl={
@@ -174,6 +228,19 @@ export default function Transactions() {
 }
 
 const styles = StyleSheet.create({
+  filterContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: colors.background,
+  },
+  filterText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: colors.primaryText,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
