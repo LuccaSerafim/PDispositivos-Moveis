@@ -21,6 +21,10 @@ export default function TabsLayout() {
         title: "Transações",
         tabBarIcon: ({ color }) => <MaterialIcons name="attach-money" size={28} color={color} />
       }}/>
+      <Tabs.Screen name="categories" options={{
+        title: "Categorias",
+        tabBarIcon: ({ color }) => <MaterialIcons name="category" size={26} color={color} />
+      }}/>
       <Tabs.Screen name="add-transactions" options={{
         title: "Adicionar Transação",
         tabBarLabel: "",
