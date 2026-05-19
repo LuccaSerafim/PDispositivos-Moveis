@@ -1,3 +1,4 @@
+import { useAuth } from "../../contexts/AuthContext";
 import { MoneyContext } from "../../contexts/GlobalState";
 import { useContext, useState, useMemo } from "react";
 import {
@@ -17,6 +18,7 @@ const MONTHS = [
 
 export default function Transactions() {
   const { transactions, categories, loading, error, refresh, removeTransaction, updateTransaction } = useContext(MoneyContext);
+  const { user, logout } = useAuth();
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving] = useState(false);
@@ -24,12 +26,6 @@ export default function Transactions() {
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
-
-  const years = useMemo(() => {
-    const set = new Set(transactions.map((t) => new Date(t.date).getFullYear()));
-    set.add(now.getFullYear());
-    return Array.from(set).sort((a, b) => b - a);
-  }, [transactions]);
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter((t) => {
@@ -136,6 +132,14 @@ export default function Transactions() {
 
   return (
     <View style={globalStyles.screenContainer}>
+      {/* Boas-vindas */}
+      <View style={styles.welcomeContainer}>
+        <Text style={styles.welcomeText}>Olá, {user?.name}! 👋</Text>
+        <TouchableOpacity onPress={logout}>
+          <MaterialIcons name="logout" size={24} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
+
       {/* Filtro de mês/ano */}
       <View style={styles.filterContainer}>
         <TouchableOpacity onPress={prevMonth}>
@@ -228,6 +232,18 @@ export default function Transactions() {
 }
 
 const styles = StyleSheet.create({
+  welcomeContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  welcomeText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: colors.primaryText,
+  },
   filterContainer: {
     flexDirection: "row",
     alignItems: "center",

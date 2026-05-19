@@ -15,11 +15,17 @@ async function request(path, options = {}) {
 }
 
 export const api = {
-  listCategories:    ()        => request("/categories"),
-  createCategory:    (data)    => request("/categories",        { method: "POST",   body: JSON.stringify(data) }),
-  updateCategory:    (id, d)   => request(`/categories/${id}`,  { method: "PUT",    body: JSON.stringify(d) }),
-  deleteCategory:    (id)      => request(`/categories/${id}`,  { method: "DELETE" }),
+  // Auth
+  register: (data) => request("/auth/register", { method: "POST", body: JSON.stringify(data) }),
+  login:    (data) => request("/auth/login",    { method: "POST", body: JSON.stringify(data) }),
 
+  // Categories
+  listCategories:  ()        => request("/categories"),
+  createCategory:  (data)    => request("/categories",       { method: "POST",   body: JSON.stringify(data) }),
+  updateCategory:  (id, d)   => request(`/categories/${id}`, { method: "PUT",    body: JSON.stringify(d) }),
+  deleteCategory:  (id)      => request(`/categories/${id}`, { method: "DELETE" }),
+
+  // Transactions
   listTransactions:  ()        => request("/transactions"),
   createTransaction: (data)    => request("/transactions",       { method: "POST",   body: JSON.stringify(data) }),
   updateTransaction: (id, d)   => request(`/transactions/${id}`, { method: "PUT",    body: JSON.stringify(d) }),
