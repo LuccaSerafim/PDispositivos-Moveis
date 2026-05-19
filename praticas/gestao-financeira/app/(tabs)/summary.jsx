@@ -2,14 +2,17 @@ import { useContext, useMemo, useState } from "react";
 import { MoneyContext } from "../../contexts/GlobalState";
 import { globalStyles } from "../../styles/globalstyles";
 import SummaryItem from "../../components/SummaryItem";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, Dimensions } from "react-native";
 import { colors } from "../../constants/colors";
 import { MaterialIcons } from "@expo/vector-icons";
+import { PieChart } from "react-native-chart-kit";
 
 const MONTHS = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
+
+const screenWidth = Dimensions.get("window").width;
 
 export default function Summary() {
   const { transactions, categories } = useContext(MoneyContext);
@@ -64,10 +67,22 @@ export default function Summary() {
     return { map, sum };
   }, [transactions, categories, selectedMonth, selectedYear]);
 
+  const pieData = useMemo(() => {
+    return categories
+      .filter((cat) => !cat.isIncome && (totals.map[cat.id] ?? 0) > 0)
+      .map((cat) => ({
+        name: cat.displayName,
+        population: totals.map[cat.id],
+        color: cat.background,
+        legendFontColor: colors.primaryText,
+        legendFontSize: 13,
+      }));
+  }, [categories, totals]);
+
   const valueStyle = totals.sum > 0 ? globalStyles.positiveText : globalStyles.negativeText;
 
   return (
-    <View style={globalStyles.screenContainer}>
+    <ScrollView style={globalStyles.screenContainer}>
       {/* Filtro de mês/ano */}
       <View style={styles.filterContainer}>
         <TouchableOpacity onPress={prevMonth}>
@@ -80,6 +95,30 @@ export default function Summary() {
           <MaterialIcons name="chevron-right" size={32} color={colors.primary} />
         </TouchableOpacity>
       </View>
+
+      {/* Gráfico de pizza */}
+      {pieData.length > 0 ? (
+        <View style={styles.chartContainer}>
+          <Text style={styles.chartTitle}>Despesas por categoria</Text>
+          <PieChart
+            data={pieData}
+            width={screenWidth - 32}
+            height={200}
+            chartConfig={{
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            }}
+            accessor="population"
+            backgroundColor="transparent"
+            paddingLeft="16"
+          />
+        </View>
+      ) : (
+        <View style={styles.chartContainer}>
+          <Text style={globalStyles.secondaryText}>
+            Nenhuma despesa em {MONTHS[selectedMonth]} {selectedYear}
+          </Text>
+        </View>
+      )}
 
       <View style={globalStyles.content}>
         {categories.map((cat) => (
@@ -102,7 +141,7 @@ export default function Summary() {
           </Text>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -119,6 +158,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: colors.primaryText,
+  },
+  chartContainer: {
+    alignItems: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+  },
+  chartTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: colors.primaryText,
+    marginBottom: 8,
   },
   balance: {
     flexDirection: "row",
