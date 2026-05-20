@@ -41,14 +41,16 @@ npm install
 cp .env.example .env
 ```
 
-**Edite o `.env` com seus dados do PostgreSQL:**
+> ⚠️ **Atenção:** edite o `.env` com o usuário e senha do seu PostgreSQL antes de continuar!
+
+**O `.env` deve ficar assim:**
 ```env
-DATABASE_URL="postgresql://USUARIO:SENHA@localhost:5432/gestao_financeira"
+DATABASE_URL="postgresql://postgres:SUA_SENHA@localhost:5432/gestao_financeira"
 PORT=3000
 JWT_SECRET="gestao_financeira_2026_chave_secreta"
 ```
 
-> O usuário padrão do PostgreSQL é `postgres`. Troque `SENHA` pela sua senha.
+> O usuário padrão do PostgreSQL é `postgres`. Troque `SUA_SENHA` pela sua senha. Se não tiver senha, deixe assim: `postgresql://postgres:@localhost:5432/gestao_financeira`
 
 **Rode a migration para criar as tabelas:**
 ```bash
@@ -65,7 +67,10 @@ npm run prisma:seed
 npm run dev
 ```
 
-A API estará rodando em `http://localhost:3000`.
+A API estará rodando em `http://localhost:3000`. Teste no navegador — deve aparecer:
+```json
+{ "ok": true, "name": "gestao-financeira-api" }
+```
 
 ---
 
@@ -91,6 +96,8 @@ EXPO_PUBLIC_API_URL=http://10.0.2.2:3000
 > Para device físico Android, troque `10.0.2.2` pelo IP da sua máquina (descubra com `ipconfig`).
 > Para iOS Simulator, use `http://localhost:3000`.
 
+> ⚠️ **Atenção:** após criar ou alterar o `.env`, reinicie o `expo start` para as variáveis serem carregadas.
+
 **Suba o app:**
 ```bash
 npx expo start
@@ -102,13 +109,13 @@ Aperte **A** para abrir no emulador Android.
 
 ## 4. Rodar tudo junto
 
-Abra **3 terminais**:
+Abra **2 terminais**:
 
 | Terminal | Pasta | Comando |
 |---|---|---|
 | 1 | `gestao-financeira-api/` | `npm run dev` |
 | 2 | `gestao-financeira/` | `npx expo start` |
-| 3 | `gestao-financeira-api/` (opcional) | `npm run prisma:studio` |
+| 3 (opcional) | `gestao-financeira-api/` | `npm run prisma:studio` |
 
 ---
 
@@ -117,7 +124,8 @@ Abra **3 terminais**:
 Importe a collection do Postman localizada em `postman/collection.json`.
 
 Configure a variável de ambiente:
-- `baseUrl = http://localhost:3000`
+- **Variable:** `baseUrl`
+- **Value:** `http://localhost:3000`
 
 ### Endpoints disponíveis
 
@@ -160,8 +168,8 @@ Configure a variável de ambiente:
 ## Scripts disponíveis
 
 ```bash
-npm run dev          # Sobe o servidor em modo desenvolvimento
-npm run start        # Sobe o servidor em modo produção
+npm run dev             # Sobe o servidor em modo desenvolvimento
+npm run start           # Sobe o servidor em modo produção
 npm run prisma:migrate  # Roda as migrations
 npm run prisma:seed     # Popula as categorias iniciais
 npm run prisma:studio   # Abre o Prisma Studio (interface visual do banco)
