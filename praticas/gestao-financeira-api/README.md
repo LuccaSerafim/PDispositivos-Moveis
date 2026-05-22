@@ -153,7 +153,74 @@ Configure a variável de ambiente:
 
 ---
 
-## 6. Funcionalidades do app
+## 6. Testar o app
+
+Com a API rodando e o emulador aberto, siga o roteiro abaixo para testar todas as funcionalidades:
+
+### 6.1 — Cadastro e Login
+1. Na tela inicial clique em **"Não tem conta? Cadastre-se"**
+2. Preencha nome, email e senha (mínimo 6 caracteres) e clique em **"Cadastrar"**
+3. O app vai logar automaticamente e redirecionar para a tela principal
+4. Confirme que aparece **"Olá, [seu nome]! 👋"** no topo da tela
+5. Para testar a validação, tente logar com senha errada — deve aparecer **"Email ou senha inválidos!"**
+
+### 6.2 — Adicionar Transação
+1. Clique no botão **"+"** no menu inferior
+2. Preencha descrição, valor, data e selecione uma categoria
+3. Clique em **"Adicionar"** — deve aparecer **"Transação adicionada com sucesso!"**
+4. Volte para a aba **"Transações"** e confirme que apareceu na lista
+
+### 6.3 — Editar Transação
+1. Na aba **"Transações"**, faça **toque longo** em uma transação
+2. Selecione **"Editar"** no menu que aparecer
+3. Altere a descrição ou valor e clique em **"Salvar"**
+4. Confirme que a transação foi atualizada na lista
+
+### 6.4 — Excluir Transação
+1. Na aba **"Transações"**, faça **toque longo** em uma transação
+2. Selecione **"Excluir"** e confirme
+3. A transação deve desaparecer da lista
+
+### 6.5 — Filtro de Mês/Ano
+1. Na aba **"Transações"**, use as setas **"<"** e **">"** para navegar entre os meses
+2. Confirme que só aparecem as transações do mês selecionado
+3. O mesmo filtro funciona na aba **"Resumo"**
+
+### 6.6 — Pull-to-refresh
+1. Na aba **"Transações"**, puxe a lista de cima para baixo
+2. Os dados devem ser recarregados do servidor
+
+### 6.7 — Categorias Customizadas
+1. Clique na aba **"Categorias"**
+2. Confirme que aparecem as 5 categorias padrão (Alimentação, Casa, Educação, Renda, Viagens)
+3. Crie uma nova categoria preenchendo nome técnico, nome de exibição, ícone e cor
+4. A nova categoria deve aparecer na lista com o badge **"personalizada"**
+5. Verifique que ela também aparece no seletor ao adicionar uma transação
+6. Tente excluir uma categoria padrão — deve aparecer erro **"Categorias padrão não podem ser excluídas"**
+7. Exclua a categoria personalizada criada — deve funcionar normalmente
+
+### 6.8 — Resumo com Gráfico
+1. Clique na aba **"Resumo"**
+2. Confirme que aparece o gráfico de pizza com as despesas por categoria
+3. Use o filtro de mês/ano para ver os totais de outros meses
+4. Confirme que o saldo (Renda − Despesas) está correto
+
+### 6.9 — Logout
+1. Na aba **"Transações"**, clique no ícone de saída no canto superior direito
+2. O app deve redirecionar para a tela de login
+
+### 6.10 — Verificar no banco
+Para confirmar que os dados estão sendo salvos no PostgreSQL, abra o pgAdmin e rode:
+
+```sql
+SELECT * FROM "User";
+SELECT * FROM "Category";
+SELECT * FROM "Transaction";
+```
+
+---
+
+## 7. Funcionalidades implementadas
 
 - ✅ Tela de login e cadastro com autenticação JWT
 - ✅ Mensagem de boas-vindas com nome do usuário
